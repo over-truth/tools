@@ -1,754 +1,603 @@
 <!doctype html>
 <html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        />
-        <title>年假发放追踪器</title>
-        <style>
-            :root {
-                --bg: #f8fafc;
-                --card: #ffffff;
-                --text-main: #0f172a;
-                --text-sub: #64748b;
-                --border: #e2e8f0;
-                --primary: #6366f1;
-                --primary-light: #e0e7ff;
-                --success: #10b981;
-                --success-light: #d1fae5;
-                --warning: #f59e0b;
-                --warning-light: #fef3c7;
-                --gray-light: #f1f5f9;
-                --shadow:
-                    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-                    0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            }
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>年假发放追踪器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  /* ───────── Reset & Base ───────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
 
-            @media (prefers-color-scheme: dark) {
-                :root {
-                    --bg: #0f172a;
-                    --card: #1e293b;
-                    --text-main: #f8fafc;
-                    --text-sub: #94a3b8;
-                    --border: #334155;
-                    --primary-light: #312e81;
-                    --success-light: #064e3b;
-                    --warning-light: #78350f;
-                    --gray-light: #334155;
-                    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-                }
-            }
+  :root {
+    --bg: #f7f3ee;
+    --bg-secondary: #ede7e0;
+    --surface: rgba(255,255,255,0.60);
+    --surface-border: rgba(255,255,255,0.35);
+    --text-primary: #2d231c;
+    --text-secondary: #7a6b5e;
+    --text-muted: #b0a294;
+    --accent-1: #d4773b;
+    --accent-2: #e8915a;
+    --accent-glow: rgba(212,119,59,0.18);
+    --accent-light: rgba(212,119,59,0.10);
+    --success: #3a9d6f;
+    --success-glow: rgba(58,157,111,0.18);
+    --success-light: rgba(58,157,111,0.10);
+    --warning: #c9953b;
+    --warning-glow: rgba(201,149,59,0.18);
+    --warning-light: rgba(201,149,59,0.10);
+    --shadow-sm: 0 2px 8px rgba(45,35,28,0.05);
+    --shadow-card: 0 8px 32px rgba(45,35,28,0.08), 0 2px 8px rgba(45,35,28,0.04);
+    --shadow-lg: 0 20px 48px rgba(45,35,28,0.12), 0 4px 16px rgba(45,35,28,0.06);
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+  }
 
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-                -webkit-tap-highlight-color: transparent;
-            }
-            body {
-                font-family:
-                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                    Helvetica, Arial, sans-serif;
-                background: var(--bg);
-                color: var(--text-main);
-                line-height: 1.5;
-                padding: 16px;
-                padding-bottom: 40px;
-            }
-            @media (min-width: 769px) {
-                body {
-                    padding: 32px 24px 60px;
-                }
-            }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15120f;
+      --bg-secondary: #1f1a16;
+      --surface: rgba(30,25,21,0.65);
+      --surface-border: rgba(60,52,44,0.35);
+      --text-primary: #ede4db;
+      --text-secondary: #a89888;
+      --text-muted: #6b5f53;
+      --accent-1: #e8915a;
+      --accent-2: #f0a87a;
+      --accent-glow: rgba(232,145,90,0.15);
+      --accent-light: rgba(232,145,90,0.08);
+      --success: #4cbf8a;
+      --success-glow: rgba(76,191,138,0.15);
+      --success-light: rgba(76,191,138,0.08);
+      --warning: #dbb05c;
+      --warning-glow: rgba(219,176,92,0.15);
+      --warning-light: rgba(219,176,92,0.08);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+      --shadow-card: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+      --shadow-lg: 0 20px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25);
+    }
+  }
 
-            .container {
-                max-width: 960px;
-                margin: 0 auto;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-areas:
-                    "header   header"
-                    "input    input"
-                    "dashboard  dashboard"
-                    "results  results";
-            }
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 16px;
+    padding-bottom: 48px;
+    transition: background .35s, color .35s;
+  }
+  @media (min-width: 769px) {
+    body { padding: 32px 24px 60px; }
+  }
 
-            /* Header */
-            .header {
-                grid-area: header;
-                text-align: center;
-                margin-bottom: 24px;
-                padding-top: 12px;
-            }
-            .header h1 {
-                font-size: 22px;
-                font-weight: 800;
-                background: linear-gradient(135deg, var(--primary), #ec4899);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-            .header p {
-                font-size: 13px;
-                color: var(--text-sub);
-                margin-top: 4px;
-            }
+  /* ─── Animated Background ─── */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    overflow: hidden; pointer-events: none;
+  }
+  .bg-canvas .orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(90px); opacity: .16;
+    will-change: transform;
+    animation: orbFloat 24s ease-in-out infinite;
+  }
+  .bg-canvas .orb:nth-child(1) { width: 520px; height: 520px; background: var(--accent-1); top: -12%; left: -6%; animation-delay: 0s; }
+  .bg-canvas .orb:nth-child(2) { width: 400px; height: 400px; background: #b0896c; bottom: -10%; right: -4%; animation-delay: -8s; opacity: .10; }
+  .bg-canvas .orb:nth-child(3) { width: 300px; height: 300px; background: var(--accent-2); top: 50%; left: 50%; translate: -50% -50%; animation-delay: -16s; opacity: .08; }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    25% { transform: translate(40px,-30px) scale(1.08); }
+    50% { transform: translate(-20px,20px) scale(0.95); }
+    75% { transform: translate(30px,40px) scale(1.05); }
+  }
 
-            /* Input Card */
-            .card {
-                grid-area: input;
-                background: var(--card);
-                border-radius: 16px;
-                padding: 20px;
-                box-shadow: var(--shadow);
-                margin-bottom: 0;
-                border: 1px solid var(--border);
-                align-self: start;
-            }
-            .form-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 16px;
-                align-items: end;
-            }
-            .form-grid .form-group {
-                min-width: 0;
-            }
-            .form-grid .btn {
-                grid-column: 1 / -1;
-                margin-top: 4px;
-            }
-            .form-grid .form-group label span {
-                display: block;
-                font-size: 11px;
-                margin-top: 2px;
-                font-weight: 400;
-                color: var(--text-sub);
-            }
-            .form-group label {
-                display: block;
-                font-size: 13px;
-                font-weight: 600;
-                margin-bottom: 6px;
-                color: var(--text-sub);
-            }
-            .input-wrap {
-                position: relative;
-            }
-            input {
-                width: 100%;
-                padding: 12px 14px;
-                border: 1.5px solid var(--border);
-                border-radius: 10px;
-                font-size: 15px;
-                background: var(--bg);
-                color: var(--text-main);
-                outline: none;
-                transition: all 0.2s;
-                appearance: none;
-                -webkit-appearance: none;
-            }
-            input:focus {
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-            }
-            .unit {
-                position: absolute;
-                right: 14px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: var(--text-sub);
-                font-size: 14px;
-                pointer-events: none;
-            }
+  /* ─── Grain ─── */
+  .grain {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat; background-size: 256px 256px;
+  }
 
-            .btn {
-                width: 100%;
-                padding: 14px;
-                background: linear-gradient(135deg, var(--primary), #8b5cf6);
-                color: white;
-                border: none;
-                border-radius: 12px;
-                font-size: 15px;
-                font-weight: 600;
-                cursor: pointer;
-                margin-top: 8px;
-                box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-                transition: transform 0.1s;
-            }
-            .btn:active {
-                transform: scale(0.98);
-            }
+  /* ─── Layout ─── */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 960px; margin: 0 auto;
+  }
 
-            /* Dashboard (Progress) */
-            .dashboard {
-                grid-area: dashboard;
-                display: none;
-                gap: 12px;
-                margin-bottom: 24px;
-                align-self: start;
-            }
-            .dashboard.active {
-                display: grid;
-            }
-            @media (min-width: 769px) {
-                .dashboard.active {
-                    grid-template-columns: 1fr 1fr;
-                }
-            }
-            .stat-card {
-                background: var(--card);
-                border-radius: 14px;
-                padding: 16px;
-                border: 1px solid var(--border);
-                box-shadow: var(--shadow);
-            }
-            .stat-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 12px;
-            }
-            .stat-title {
-                font-size: 14px;
-                font-weight: 700;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-            .stat-badge {
-                font-size: 11px;
-                padding: 2px 8px;
-                border-radius: 20px;
-                font-weight: 600;
-            }
-            .badge-stat {
-                background: var(--primary-light);
-                color: var(--primary);
-            }
-            .badge-welf {
-                background: var(--warning-light);
-                color: var(--warning);
-            }
+  /* ─── Header ─── */
+  .header {
+    text-align: center; margin-bottom: 28px; padding-top: 8px;
+  }
+  .header h1 {
+    font-size: 24px; font-weight: 900; letter-spacing: -.02em;
+  }
+  .header h1 .highlight {
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p {
+    font-size: 13px; color: var(--text-secondary); margin-top: 4px; font-weight: 300;
+  }
+  @media (min-width: 769px) {
+    .header h1 { font-size: 30px; }
+    .header p { font-size: 14px; }
+  }
 
-            .progress-info {
-                display: flex;
-                justify-content: space-between;
-                font-size: 12px;
-                color: var(--text-sub);
-                margin-bottom: 6px;
-            }
-            .progress-val {
-                font-weight: 700;
-                color: var(--text-main);
-                font-size: 14px;
-            }
-            .progress-bar {
-                height: 8px;
-                background: var(--gray-light);
-                border-radius: 10px;
-                overflow: hidden;
-            }
-            .progress-fill {
-                height: 100%;
-                border-radius: 10px;
-                transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .fill-stat {
-                background: linear-gradient(90deg, #6366f1, #8b5cf6);
-            }
-            .fill-welf {
-                background: linear-gradient(90deg, #f59e0b, #fbbf24);
-            }
+  /* ─── Breadcrumb ─── */
+  .breadcrumb {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 20px;
+    font-weight: 300;
+  }
+  .breadcrumb a {
+    color: var(--text-secondary); text-decoration: none;
+    transition: color .2s;
+  }
+  .breadcrumb a:hover { color: var(--accent-1); }
+  .breadcrumb .sep { opacity: .4; }
 
-            /* Timeline */
-            .section-title {
-                font-size: 16px;
-                font-weight: 700;
-                margin: 24px 0 16px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .timeline {
-                position: relative;
-                padding-left: 24px;
-            }
-            .timeline::before {
-                content: "";
-                position: absolute;
-                left: 7px;
-                top: 8px;
-                bottom: 8px;
-                width: 2px;
-                background: var(--border);
-                border-radius: 2px;
-            }
+  /* ─── Glass Card ─── */
+  .glass {
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
 
-            .tl-item {
-                position: relative;
-                margin-bottom: 16px;
-            }
-            .tl-item:last-child {
-                margin-bottom: 0;
-            }
-            .tl-node {
-                position: absolute;
-                left: -24px;
-                top: 18px;
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-                border: 3px solid var(--bg);
-                z-index: 1;
-                box-shadow: 0 0 0 2px var(--border);
-                background: var(--card);
-                transition: all 0.3s;
-            }
+  /* ─── Input Card ─── */
+  .input-card { padding: 24px; margin-bottom: 24px; }
+  @media (min-width: 769px) { .input-card { padding: 28px; } }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: end;
+  }
+  .form-grid .btn-wrap { grid-column: 1 / -1; margin-top: 4px; }
 
-            .tl-card {
-                background: var(--card);
-                border-radius: 12px;
-                padding: 14px 16px;
-                border: 1px solid var(--border);
-                box-shadow: var(--shadow);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                transition: all 0.3s;
-            }
+  .form-group { min-width: 0; }
+  .form-group label {
+    display: block; font-size: 12px; font-weight: 700;
+    margin-bottom: 6px; color: var(--text-secondary); letter-spacing: .02em;
+  }
+  .form-group label span {
+    display: block; font-size: 11px; font-weight: 400;
+    margin-top: 2px; color: var(--text-muted);
+  }
+  .input-wrap { position: relative; }
+  input {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--surface-border);
+    border-radius: var(--radius-sm);
+    font-size: 15px; font-family: inherit;
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: all .25s;
+    appearance: none; -webkit-appearance: none;
+  }
+  input:focus {
+    border-color: var(--accent-1);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .input-wrap .unit {
+    position: absolute; right: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted); font-size: 14px; pointer-events: none;
+  }
 
-            /* States */
-            .tl-item.unlocked .tl-node {
-                background: var(--success);
-                box-shadow: 0 0 0 2px var(--success);
-            }
-            .tl-item.unlocked .tl-card {
-                border-color: var(--success);
-                background: linear-gradient(
-                    to right,
-                    var(--success-light),
-                    var(--card)
-                );
-            }
-            .tl-item.unlocked.welf .tl-node {
-                background: var(--warning);
-                box-shadow: 0 0 0 2px var(--warning);
-            }
-            .tl-item.unlocked.welf .tl-card {
-                border-color: var(--warning);
-                background: linear-gradient(
-                    to right,
-                    var(--warning-light),
-                    var(--card)
-                );
-            }
+  /* ─── Button ─── */
+  .btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: #fff; border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px; font-weight: 700; font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 16px var(--accent-glow);
+    transition: transform .15s, box-shadow .25s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:hover { box-shadow: 0 6px 24px var(--accent-glow); }
 
-            .tl-item.locked {
-                opacity: 0.6;
-            }
-            .tl-item.locked .tl-card {
-                border-style: dashed;
-            }
+  /* ─── Dashboard ─── */
+  .dashboard {
+    display: none;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .dashboard.active { display: grid; }
+  @media (min-width: 769px) {
+    .dashboard.active { grid-template-columns: 1fr 1fr; }
+  }
+  .stat-card {
+    padding: 20px;
+  }
+  .stat-card.inside { border-radius: var(--radius-md); }
+  .stat-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 14px;
+  }
+  .stat-title {
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .stat-badge {
+    font-size: 11px; padding: 3px 10px;
+    border-radius: 100px; font-weight: 600;
+  }
+  .badge-stat {
+    background: var(--accent-glow);
+    color: var(--accent-1);
+  }
+  .badge-welf {
+    background: var(--warning-glow);
+    color: var(--warning);
+  }
 
-            .tl-date {
-                font-size: 15px;
-                font-weight: 700;
-            }
-            .tl-week {
-                font-size: 12px;
-                color: var(--text-sub);
-                margin-left: 6px;
-                font-weight: 500;
-            }
-            .tl-status {
-                font-size: 11px;
-                margin-top: 4px;
-                font-weight: 600;
-            }
-            .status-unlocked {
-                color: var(--success);
-            }
-            .status-locked {
-                color: var(--text-sub);
-            }
-            .welf .status-unlocked {
-                color: var(--warning);
-            }
+  .progress-info {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;
+  }
+  .progress-val { font-weight: 700; color: var(--text-primary); font-size: 14px; }
+  .progress-track {
+    height: 6px;
+    background: var(--bg-secondary);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 100px;
+    transition: width .8s cubic-bezier(0.16,1,0.3,1);
+  }
+  .fill-stat { background: linear-gradient(90deg, var(--accent-1), var(--accent-2)); }
+  .fill-welf { background: linear-gradient(90deg, var(--warning), #e8c47a); }
 
-            .tl-amount {
-                font-size: 14px;
-                font-weight: 800;
-                padding: 4px 10px;
-                border-radius: 8px;
-                background: var(--gray-light);
-                color: var(--text-main);
-                white-space: nowrap;
-            }
-            .tl-item.unlocked .tl-amount {
-                background: var(--success);
-                color: white;
-            }
-            .tl-item.unlocked.welf .tl-amount {
-                background: var(--warning);
-                color: white;
-            }
+  /* ─── Results ─── */
+  #results { display: none; }
+  #statSection, #welfSection { min-width: 0; }
 
-            .summary {
-                grid-column: 1 / -1;
-                font-size: 12px;
-                color: var(--text-sub);
-                text-align: center;
-                margin-top: 30px;
-                padding: 12px;
-                background: var(--gray-light);
-                border-radius: 10px;
-                line-height: 1.8;
-            }
+  .section-title {
+    font-size: 15px; font-weight: 700;
+    margin: 28px 0 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
 
-            /* Results section: two-column timelines */
-            #results {
-                grid-area: results;
-                display: none;
-            }
-            #statSection,
-            #welfSection {
-                min-width: 0;
-            }
+  /* ─── Timeline ─── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 9px; top: 10px; bottom: 10px;
+    width: 2px;
+    background: var(--surface-border);
+    border-radius: 2px;
+  }
 
-            /* === PC two-column timelines === */
-            /* Only apply grid when JS has made #results visible (display: block) */
-            @media (min-width: 769px) {
-                #results[style*="block"] {
-                    display: grid !important;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 24px;
-                    align-items: start;
-                }
-                #results[style*="block"] > .summary {
-                    grid-column: 1 / -1;
-                }
-            }
+  .tl-item {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .tl-item:last-child { margin-bottom: 0; }
 
-            /* === Mobile / small screens: stack everything === */
-            @media (max-width: 768px) {
-                .container {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .card {
-                    margin-bottom: 20px;
-                }
-                .form-grid {
-                    grid-template-columns: 1fr 1fr;
-                }
-                .form-grid .btn {
-                    grid-column: 1 / -1;
-                }
-                #results > .summary {
-                    grid-column: auto;
-                }
-            }
+  .tl-node {
+    position: absolute;
+    left: -28px; top: 20px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 3px solid var(--surface-border);
+    z-index: 1;
+    transition: all .35s;
+  }
 
-            /* Wider stat titles on desktop */
-            @media (min-width: 769px) {
-                .header h1 {
-                    font-size: 28px;
-                }
-                .header p {
-                    font-size: 14px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>⏳ 年假发放追踪器</h1>
-                <p>清晰掌握每一天的假期进度</p>
-            </div>
+  .tl-card {
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all .35s;
+  }
 
-            <div class="card">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>年假周期起始日</label>
-                        <input type="date" id="startDate" />
-                    </div>
-                    <div class="form-group">
-                        <label
-                            >法定年假 (n天)
-                            <span
-                                style="color: var(--text-sub); font-weight: 400"
-                                >分10次，每次0.5天</span
-                            ></label
-                        >
-                        <div class="input-wrap">
-                            <input
-                                type="number"
-                                id="statDays"
-                                placeholder="5"
-                                min="0"
-                                step="0.5"
-                                inputmode="decimal"
-                            />
-                            <span class="unit">天</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label
-                            >福利年假 (m天)
-                            <span
-                                style="color: var(--text-sub); font-weight: 400"
-                                >分m次，每次1天</span
-                            ></label
-                        >
-                        <div class="input-wrap">
-                            <input
-                                type="number"
-                                id="welfDays"
-                                placeholder="3"
-                                min="0"
-                                step="1"
-                                inputmode="numeric"
-                            />
-                            <span class="unit">天</span>
-                        </div>
-                    </div>
-                    <button class="btn" onclick="calculate()">
-                        生成发放时间线
-                    </button>
-                </div>
-            </div>
+  /* States */
+  .tl-item.unlocked .tl-node {
+    border-color: var(--success);
+    background: var(--success);
+    box-shadow: 0 0 0 3px var(--success-glow);
+  }
+  .tl-item.unlocked .tl-card {
+    border-color: var(--success);
+    background: var(--success-light);
+  }
+  .tl-item.unlocked.welf .tl-node {
+    border-color: var(--warning);
+    background: var(--warning);
+    box-shadow: 0 0 0 3px var(--warning-glow);
+  }
+  .tl-item.unlocked.welf .tl-card {
+    border-color: var(--warning);
+    background: var(--warning-light);
+  }
 
-            <!-- 数据看板 -->
-            <div id="dashboard" class="dashboard">
-                <div class="stat-card" id="statDash" style="display: none">
-                    <div class="stat-header">
-                        <span class="stat-title">⚖️ 法定年假</span>
-                        <span class="stat-badge badge-stat">已解锁</span>
-                    </div>
-                    <div class="progress-info">
-                        <span>发放进度</span>
-                        <span class="progress-val"
-                            ><span id="statUnlocked">0</span> /
-                            <span id="statTotal">0</span> 天</span
-                        >
-                    </div>
-                    <div class="progress-bar">
-                        <div
-                            class="progress-fill fill-stat"
-                            id="statProgress"
-                            style="width: 0%"
-                        ></div>
-                    </div>
-                </div>
+  .tl-item.locked {
+    opacity: .55;
+  }
+  .tl-item.locked .tl-card {
+    border-style: dashed;
+  }
 
-                <div class="stat-card" id="welfDash" style="display: none">
-                    <div class="stat-header">
-                        <span class="stat-title">🎁 福利年假</span>
-                        <span class="stat-badge badge-welf">已解锁</span>
-                    </div>
-                    <div class="progress-info">
-                        <span>发放进度</span>
-                        <span class="progress-val"
-                            ><span id="welfUnlocked">0</span> /
-                            <span id="welfTotal">0</span> 天</span
-                        >
-                    </div>
-                    <div class="progress-bar">
-                        <div
-                            class="progress-fill fill-welf"
-                            id="welfProgress"
-                            style="width: 0%"
-                        ></div>
-                    </div>
-                </div>
-            </div>
+  .tl-date {
+    font-size: 15px; font-weight: 700;
+  }
+  .tl-week {
+    font-size: 12px; color: var(--text-secondary);
+    margin-left: 6px; font-weight: 500;
+  }
+  .tl-status {
+    font-size: 11px; margin-top: 4px; font-weight: 600;
+  }
+  .status-unlocked { color: var(--success); }
+  .status-locked { color: var(--text-muted); }
+  .welf .status-unlocked { color: var(--warning); }
 
-            <!-- 结果区域 -->
-            <div id="results" style="display: none">
-                <div id="statSection" style="display: none">
-                    <div class="section-title">📅 法定年假发放线</div>
-                    <div class="timeline" id="statList"></div>
-                </div>
+  .tl-amount {
+    font-size: 14px; font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+  .tl-item.unlocked .tl-amount {
+    background: var(--success);
+    color: #fff;
+  }
+  .tl-item.unlocked.welf .tl-amount {
+    background: var(--warning);
+    color: #fff;
+  }
 
-                <div id="welfSection" style="display: none">
-                    <div class="section-title">🎉 福利年假发放线</div>
-                    <div class="timeline" id="welfList"></div>
-                </div>
+  /* ─── Summary ─── */
+  .summary-box {
+    grid-column: 1 / -1;
+    font-size: 13px; font-weight: 300;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 36px;
+    padding: 16px 20px;
+    line-height: 1.8;
+  }
+  .summary-box strong { font-weight: 700; color: var(--text-primary); }
 
-                <div id="summaryBox" class="summary"></div>
-            </div>
+  /* ─── Two-column on desktop ─── */
+  @media (min-width: 769px) {
+    #results[style*="block"] {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    #results[style*="block"] > .summary-box { grid-column: 1 / -1; }
+  }
+
+  /* ─── Mobile adjustments ─── */
+  @media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .form-grid .btn-wrap { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+</div>
+<div class="grain"></div>
+
+<div class="container">
+  <div class="breadcrumb">
+    <a href="index.html">工具集</a>
+    <span class="sep">/</span>
+    <span>年假发放追踪器</span>
+  </div>
+
+  <div class="header">
+    <h1><span class="highlight">年假发放</span>追踪器</h1>
+    <p>清晰掌握每一天的假期进度</p>
+  </div>
+
+  <!-- Input Card -->
+  <div class="glass input-card">
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:1/-1;">
+        <label>年假周期起始日</label>
+        <input type="date" id="startDate" />
+      </div>
+      <div class="form-group">
+        <label>法定年假 (n天) <span>分10次，每次0.5天</span></label>
+        <div class="input-wrap">
+          <input type="number" id="statDays" placeholder="5" min="0" step="0.5" inputmode="decimal" />
+          <span class="unit">天</span>
         </div>
-
-        <script>
-            // 初始化默认值
-            document.getElementById("startDate").value = "2026-01-01";
-            document.getElementById("statDays").value = "5";
-            document.getElementById("welfDays").value = "8";
-
-            function calculate() {
-                const startVal = document.getElementById("startDate").value;
-                const n =
-                    parseFloat(document.getElementById("statDays").value) || 0;
-                const m =
-                    parseInt(document.getElementById("welfDays").value) || 0;
-
-                if (!startVal) return alert("请选择起始日期");
-                if (n <= 0 && m <= 0) return alert("请至少填写一种年假天数");
-
-                const startDate = new Date(startVal + "T00:00:00");
-                const endDate = new Date(startDate);
-                endDate.setFullYear(endDate.getFullYear() + 1);
-                endDate.setDate(endDate.getDate() - 1);
-
-                const totalDays =
-                    Math.round((endDate - startDate) / 86400000) + 1;
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); // 归零时间以便准确对比日期
-
-                let statHtml = "",
-                    welfHtml = "";
-                let statUnlockedDays = 0,
-                    welfUnlockedDays = 0;
-
-                // === 1. 法定年假计算 ===
-                if (n > 0) {
-                    const maxTimes = 10;
-                    const periodLen = totalDays / maxTimes;
-                    const actualTimes = Math.min(maxTimes, Math.floor(n / 0.5));
-                    const remainder = n - actualTimes * 0.5;
-
-                    for (let i = 1; i <= actualTimes; i++) {
-                        const dayOffset = Math.ceil(i * periodLen) - 1;
-                        const d = new Date(startDate);
-                        d.setDate(d.getDate() + dayOffset);
-
-                        const isUnlocked = d <= today;
-                        if (isUnlocked) statUnlockedDays += 0.5;
-                        statHtml += createTimelineItem(
-                            d,
-                            "+0.5天",
-                            isUnlocked,
-                            false,
-                        );
-                    }
-                    if (remainder > 0.01) {
-                        const isUnlocked = endDate <= today;
-                        if (isUnlocked) statUnlockedDays += remainder;
-                        statHtml += createTimelineItem(
-                            endDate,
-                            `+${remainder}天`,
-                            isUnlocked,
-                            false,
-                        );
-                    }
-
-                    document.getElementById("statSection").style.display =
-                        "block";
-                    document.getElementById("statList").innerHTML = statHtml;
-                    document.getElementById("statDash").style.display = "block";
-                    document.getElementById("statTotal").innerText = n;
-                    document.getElementById("statUnlocked").innerText =
-                        statUnlockedDays;
-                    document.getElementById("statProgress").style.width =
-                        `${(statUnlockedDays / n) * 100}%`;
-                } else {
-                    document.getElementById("statSection").style.display =
-                        "none";
-                    document.getElementById("statDash").style.display = "none";
-                }
-
-                // === 2. 福利年假计算 ===
-                if (m > 0) {
-                    const welfPeriodLen = totalDays / m;
-                    for (let i = 1; i <= m; i++) {
-                        const dayOffset = Math.ceil(i * welfPeriodLen) - 1;
-                        const d = new Date(startDate);
-                        d.setDate(d.getDate() + dayOffset);
-
-                        const isUnlocked = d <= today;
-                        if (isUnlocked) welfUnlockedDays += 1;
-                        welfHtml += createTimelineItem(
-                            d,
-                            "+1天",
-                            isUnlocked,
-                            true,
-                        );
-                    }
-
-                    document.getElementById("welfSection").style.display =
-                        "block";
-                    document.getElementById("welfList").innerHTML = welfHtml;
-                    document.getElementById("welfDash").style.display = "block";
-                    document.getElementById("welfTotal").innerText = m;
-                    document.getElementById("welfUnlocked").innerText =
-                        welfUnlockedDays;
-                    document.getElementById("welfProgress").style.width =
-                        `${(welfUnlockedDays / m) * 100}%`;
-                } else {
-                    document.getElementById("welfSection").style.display =
-                        "none";
-                    document.getElementById("welfDash").style.display = "none";
-                }
-
-                // 汇总
-                const cycleProgress = Math.min(
-                    100,
-                    Math.max(
-                        0,
-                        ((today - startDate) / 86400000 / totalDays) * 100,
-                    ),
-                ).toFixed(1);
-                document.getElementById("summaryBox").innerHTML = `
-        📆 年假周期：${fmt(startDate)} 至 ${fmt(endDate)} (共${totalDays}天)<br>
-        ⏳ 当前周期进度：<strong>${cycleProgress}%</strong> | 系统判定日期：${fmt(today)}
-    `;
-
-                document.getElementById("dashboard").classList.add("active");
-                document.getElementById("results").style.display = "block";
-
-                // 平滑滚动到看板
-                document
-                    .getElementById("dashboard")
-                    .scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-
-            function createTimelineItem(date, amount, isUnlocked, isWelf) {
-                const weekDays = [
-                    "周日",
-                    "周一",
-                    "周二",
-                    "周三",
-                    "周四",
-                    "周五",
-                    "周六",
-                ];
-                const stateClass = isUnlocked ? "unlocked" : "locked";
-                const welfClass = isWelf ? "welf" : "";
-                const statusText = isUnlocked ? "已到账" : "待发放";
-                const statusClass = isUnlocked
-                    ? "status-unlocked"
-                    : "status-locked";
-
-                return `
-        <div class="tl-item ${stateClass} ${welfClass}">
-            <div class="tl-node"></div>
-            <div class="tl-card">
-                <div>
-                    <div><span class="tl-date">${fmt(date)}</span><span class="tl-week">${weekDays[date.getDay()]}</span></div>
-                    <div class="tl-status ${statusClass}">● ${statusText}</div>
-                </div>
-                <div class="tl-amount">${amount}</div>
-            </div>
+      </div>
+      <div class="form-group">
+        <label>福利年假 (m天) <span>分m次，每次1天</span></label>
+        <div class="input-wrap">
+          <input type="number" id="welfDays" placeholder="3" min="0" step="1" inputmode="numeric" />
+          <span class="unit">天</span>
         </div>
-    `;
-            }
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" onclick="calculate()">生成发放时间线</button>
+      </div>
+    </div>
+  </div>
 
-            function fmt(d) {
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-            }
-        </script>
-    </body>
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard">
+    <div class="glass stat-card inside" id="statDash" style="display:none">
+      <div class="stat-header">
+        <span class="stat-title">法定年假</span>
+        <span class="stat-badge badge-stat">已解锁</span>
+      </div>
+      <div class="progress-info">
+        <span>发放进度</span>
+        <span class="progress-val"><span id="statUnlocked">0</span> / <span id="statTotal">0</span> 天</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill fill-stat" id="statProgress" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="glass stat-card inside" id="welfDash" style="display:none">
+      <div class="stat-header">
+        <span class="stat-title">福利年假</span>
+        <span class="stat-badge badge-welf">已解锁</span>
+      </div>
+      <div class="progress-info">
+        <span>发放进度</span>
+        <span class="progress-val"><span id="welfUnlocked">0</span> / <span id="welfTotal">0</span> 天</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill fill-welf" id="welfProgress" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div id="statSection" style="display:none">
+      <div class="section-title">法定年假发放线</div>
+      <div class="timeline" id="statList"></div>
+    </div>
+    <div id="welfSection" style="display:none">
+      <div class="section-title">福利年假发放线</div>
+      <div class="timeline" id="welfList"></div>
+    </div>
+    <div id="summaryBox" class="summary-box"></div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("startDate").value = "2026-01-01";
+  document.getElementById("statDays").value = "5";
+  document.getElementById("welfDays").value = "8";
+
+  function calculate() {
+    const startVal = document.getElementById("startDate").value;
+    const n = parseFloat(document.getElementById("statDays").value) || 0;
+    const m = parseInt(document.getElementById("welfDays").value) || 0;
+
+    if (!startVal) return alert("请选择起始日期");
+    if (n <= 0 && m <= 0) return alert("请至少填写一种年假天数");
+
+    const startDate = new Date(startVal + "T00:00:00");
+    const endDate = new Date(startDate);
+    endDate.setFullYear(endDate.getFullYear() + 1);
+    endDate.setDate(endDate.getDate() - 1);
+
+    const totalDays = Math.round((endDate - startDate) / 86400000) + 1;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let statHtml = "", welfHtml = "";
+    let statUnlockedDays = 0, welfUnlockedDays = 0;
+
+    if (n > 0) {
+      const maxTimes = 10;
+      const periodLen = totalDays / maxTimes;
+      const actualTimes = Math.min(maxTimes, Math.floor(n / 0.5));
+      const remainder = n - actualTimes * 0.5;
+
+      for (let i = 1; i <= actualTimes; i++) {
+        const dayOffset = Math.ceil(i * periodLen) - 1;
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + dayOffset);
+        const isUnlocked = d <= today;
+        if (isUnlocked) statUnlockedDays += 0.5;
+        statHtml += createTimelineItem(d, "+0.5天", isUnlocked, false);
+      }
+      if (remainder > 0.01) {
+        const isUnlocked = endDate <= today;
+        if (isUnlocked) statUnlockedDays += remainder;
+        statHtml += createTimelineItem(endDate, "+" + remainder + "天", isUnlocked, false);
+      }
+
+      document.getElementById("statSection").style.display = "block";
+      document.getElementById("statList").innerHTML = statHtml;
+      document.getElementById("statDash").style.display = "block";
+      document.getElementById("statTotal").innerText = n;
+      document.getElementById("statUnlocked").innerText = statUnlockedDays;
+      document.getElementById("statProgress").style.width = (statUnlockedDays / n) * 100 + "%";
+    } else {
+      document.getElementById("statSection").style.display = "none";
+      document.getElementById("statDash").style.display = "none";
+    }
+
+    if (m > 0) {
+      const welfPeriodLen = totalDays / m;
+      for (let i = 1; i <= m; i++) {
+        const dayOffset = Math.ceil(i * welfPeriodLen) - 1;
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + dayOffset);
+        const isUnlocked = d <= today;
+        if (isUnlocked) welfUnlockedDays += 1;
+        welfHtml += createTimelineItem(d, "+1天", isUnlocked, true);
+      }
+
+      document.getElementById("welfSection").style.display = "block";
+      document.getElementById("welfList").innerHTML = welfHtml;
+      document.getElementById("welfDash").style.display = "block";
+      document.getElementById("welfTotal").innerText = m;
+      document.getElementById("welfUnlocked").innerText = welfUnlockedDays;
+      document.getElementById("welfProgress").style.width = (welfUnlockedDays / m) * 100 + "%";
+    } else {
+      document.getElementById("welfSection").style.display = "none";
+      document.getElementById("welfDash").style.display = "none";
+    }
+
+    const cycleProgress = Math.min(100, Math.max(0, ((today - startDate) / 86400000 / totalDays) * 100)).toFixed(1);
+    document.getElementById("summaryBox").innerHTML =
+      "周期：" + fmt(startDate) + " 至 " + fmt(endDate) + "（共" + totalDays + "天）<br>" +
+      "当前进度：<strong>" + cycleProgress + "%</strong>";
+
+    document.getElementById("dashboard").classList.add("active");
+    document.getElementById("results").style.display = "block";
+    document.getElementById("dashboard").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function createTimelineItem(date, amount, isUnlocked, isWelf) {
+    const weekDays = ["周日","周一","周二","周三","周四","周五","周六"];
+    const stateClass = isUnlocked ? "unlocked" : "locked";
+    const welfClass = isWelf ? "welf" : "";
+    const statusText = isUnlocked ? "已到账" : "待发放";
+    const statusClass = isUnlocked ? "status-unlocked" : "status-locked";
+    return '<div class="tl-item ' + stateClass + " " + welfClass + '">' +
+      '<div class="tl-node"></div>' +
+      '<div class="glass tl-card">' +
+      '<div><div><span class="tl-date">' + fmt(date) + '</span><span class="tl-week">' + weekDays[date.getDay()] + '</span></div>' +
+      '<div class="tl-status ' + statusClass + '">● ' + statusText + '</div></div>' +
+      '<div class="tl-amount">' + amount + '</div></div></div>';
+  }
+
+  function fmt(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+</script>
+</body>
 </html>
