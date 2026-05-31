@@ -1,0 +1,1146 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>年假发放时间计算器</title>
+        <style>
+            :root {
+                --primary: #6366f1;
+                --primary-light: #818cf8;
+                --primary-dark: #4f46e5;
+                --primary-glow: rgba(99, 102, 241, 0.25);
+                --stat: #10b981;
+                --stat-light: #34d399;
+                --stat-glow: rgba(16, 185, 129, 0.2);
+                --welf: #f59e0b;
+                --welf-light: #fbbf24;
+                --welf-glow: rgba(245, 158, 11, 0.2);
+                --bg: #f1f5f9;
+                --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #f1f5f9 100%);
+                --card: #ffffff;
+                --card-border: rgba(0, 0, 0, 0.06);
+                --text: #0f172a;
+                --text-secondary: #475569;
+                --subtext: #94a3b8;
+                --border: #e2e8f0;
+                --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+                --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+                --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+                --radius-sm: 8px;
+                --radius-md: 12px;
+                --radius-lg: 16px;
+                --radius-xl: 20px;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+                background: var(--bg);
+                background-image: var(--bg-gradient);
+                color: var(--text);
+                line-height: 1.6;
+                min-height: 100vh;
+                padding-bottom: 48px;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px 16px;
+            }
+
+            h1 {
+                font-size: 22px;
+                text-align: center;
+                margin: 8px 0 28px;
+                color: var(--primary);
+                font-weight: 700;
+                letter-spacing: -0.02em;
+                position: relative;
+            }
+
+            h1::after {
+                content: "";
+                display: block;
+                width: 48px;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary), var(--primary-light));
+                border-radius: 4px;
+                margin: 8px auto 0;
+            }
+
+            /* ===== 输入卡片 ===== */
+            .input-card {
+                background: var(--card);
+                border: 1px solid var(--card-border);
+                border-radius: var(--radius-lg);
+                padding: 24px;
+                box-shadow: var(--shadow-md);
+                margin-bottom: 24px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .input-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary), var(--stat), var(--welf));
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .form-group:last-of-type {
+                margin-bottom: 0;
+            }
+
+            label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: var(--text);
+            }
+
+            .hint {
+                font-size: 12px;
+                color: var(--subtext);
+                font-weight: 400;
+            }
+
+            input[type="number"],
+            input[type="date"] {
+                width: 100%;
+                padding: 12px 14px;
+                border: 1.5px solid var(--border);
+                border-radius: var(--radius-sm);
+                font-size: 16px;
+                outline: none;
+                transition: border-color 0.2s, box-shadow 0.2s;
+                appearance: none;
+                background: var(--card);
+                color: var(--text);
+                font-family: inherit;
+            }
+
+            input[type="date"] {
+                font-family: inherit;
+            }
+
+            input:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px var(--primary-glow);
+            }
+
+            input::placeholder {
+                color: var(--subtext);
+                font-weight: 400;
+                font-size: 15px;
+            }
+
+            /* ===== 按钮 ===== */
+            .btn-group {
+                margin-top: 24px;
+                position: relative;
+            }
+
+            button {
+                width: 100%;
+                padding: 14px 24px;
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                color: white;
+                border: none;
+                border-radius: var(--radius-sm);
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+                transition: transform 0.15s, box-shadow 0.2s;
+                font-family: inherit;
+                letter-spacing: 0.01em;
+            }
+
+            button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+            }
+
+            button:active {
+                transform: translateY(0);
+                box-shadow: 0 1px 4px rgba(99, 102, 241, 0.25);
+            }
+
+            button::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.15),
+                    transparent
+                );
+                transition: left 0.5s;
+            }
+
+            button:active::after {
+                left: 100%;
+            }
+
+            /* ===== 结果区域 ===== */
+            .result-section {
+                display: none;
+                animation: resultFadeIn 0.5s ease;
+            }
+
+            .result-section.active {
+                display: block;
+            }
+
+            @keyframes resultFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* ===== 水平时间线容器 ===== */
+            #unifiedSection {
+                background: var(--card);
+                border: 1px solid var(--card-border);
+                border-radius: var(--radius-lg);
+                padding: 24px;
+                box-shadow: var(--shadow-md);
+                margin-bottom: 20px;
+            }
+
+            .section-title {
+                font-size: 17px;
+                font-weight: 700;
+                margin: 0 0 16px;
+                padding-left: 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: var(--text);
+            }
+
+            .tag {
+                font-size: 11px;
+                padding: 3px 10px;
+                border-radius: 20px;
+                color: white;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+            }
+
+            .tag-stat {
+                background: var(--stat);
+            }
+
+            .tag-welf {
+                background: var(--welf);
+            }
+
+            /* ===== 时间条轨道 ===== */
+            .h-timeline {
+                position: relative;
+                margin: 16px 0 0;
+            }
+
+            .h-today {
+                position: absolute;
+                top: -14px;
+                z-index: 10;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                transform: translateX(-50%);
+                pointer-events: none;
+                transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .h-today-arrow {
+                font-size: 16px;
+                color: var(--primary);
+                line-height: 1;
+                filter: drop-shadow(0 1px 2px rgba(99, 102, 241, 0.3));
+            }
+
+            .h-today-text {
+                font-size: 10px;
+                font-weight: 700;
+                color: white;
+                background: var(--primary);
+                padding: 2px 10px;
+                border-radius: 8px;
+                margin-top: 3px;
+                white-space: nowrap;
+                box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+            }
+
+            .h-today-line {
+                width: 2px;
+                flex: 1;
+                background: var(--primary);
+                opacity: 0.3;
+                margin-top: 4px;
+                min-height: 80px;
+            }
+
+            .h-track {
+                margin-bottom: 14px;
+            }
+
+            .h-track:last-of-type {
+                margin-bottom: 12px;
+            }
+
+            .h-track-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+
+            .h-track-label {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--text-secondary);
+            }
+
+            .h-track-label .h-issued-amt {
+                color: var(--primary);
+            }
+
+            .h-track-label.welf .h-issued-amt {
+                color: #d97706;
+            }
+
+            .h-issued-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.1);
+                padding: 2px 10px;
+                border-radius: 20px;
+                margin-left: auto;
+                border: 1px solid rgba(16, 185, 129, 0.2);
+            }
+
+            .h-issued-badge.hidden {
+                display: none;
+            }
+
+            /* ===== 进度条 ===== */
+            .h-bar {
+                position: relative;
+                height: 28px;
+                background: var(--border);
+                border-radius: var(--radius-sm);
+                overflow: hidden;
+            }
+
+            .h-fill {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                border-radius: var(--radius-sm);
+                transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+                z-index: 1;
+            }
+
+            .h-fill.stat {
+                background: linear-gradient(90deg, #059669, var(--stat-light));
+            }
+
+            .h-fill.welf {
+                background: linear-gradient(90deg, #d97706, var(--welf-light));
+            }
+
+            .h-dots {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2;
+            }
+
+            .h-dot {
+                position: absolute;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                z-index: 3;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+
+            .h-dot.issued {
+                background: white;
+                border: 2.5px solid #374151;
+                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9),
+                    inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            .h-dot.pending {
+                background: transparent;
+                border: 2.5px dashed var(--subtext);
+                opacity: 0.55;
+            }
+
+            /* ===== 日期轴 ===== */
+            .h-axis {
+                display: flex;
+                justify-content: space-between;
+                font-size: 11px;
+                color: var(--subtext);
+                margin: 8px 2px 0;
+                font-weight: 500;
+            }
+
+            .h-axis span {
+                background: var(--card);
+                padding: 0 4px;
+            }
+
+            /* ===== 汇总信息 ===== */
+            .summary {
+                background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+                border: 1px solid rgba(99, 102, 241, 0.15);
+                border-radius: var(--radius-md);
+                padding: 16px 20px;
+                font-size: 14px;
+                color: #3730a3;
+                line-height: 2;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .summary br {
+                display: block;
+                content: "";
+                margin: 2px 0;
+            }
+
+            .warn {
+                background: linear-gradient(135deg, #fffbeb, #fef3c7);
+                border: 1px solid rgba(245, 158, 11, 0.2);
+                color: #92400e;
+                margin-top: 12px;
+            }
+
+            /* ===== 暗色模式 ===== */
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg: #0c1222;
+                    --bg-gradient: linear-gradient(135deg, #0c1222 0%, #111827 50%, #0f172a 100%);
+                    --card: #1a2332;
+                    --card-border: rgba(255, 255, 255, 0.05);
+                    --text: #f1f5f9;
+                    --text-secondary: #cbd5e1;
+                    --subtext: #64748b;
+                    --border: #1e293b;
+                    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+                    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2);
+                    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+                    --primary-glow: rgba(99, 102, 241, 0.2);
+                }
+
+                .summary {
+                    background: linear-gradient(135deg, #1e1b4b, #1a1a3e);
+                    border-color: rgba(99, 102, 241, 0.2);
+                    color: #a5b4fc;
+                }
+
+                .warn {
+                    background: linear-gradient(135deg, #451a03, #3b1200);
+                    border-color: rgba(245, 158, 11, 0.15);
+                    color: #fcd34d;
+                }
+
+                .h-issued-badge {
+                    background: rgba(16, 185, 129, 0.15);
+                    border-color: rgba(16, 185, 129, 0.2);
+                }
+
+                .h-dot.issued {
+                    border-color: #e2e8f0;
+                    box-shadow: 0 0 0 3px rgba(26, 35, 50, 0.95),
+                        inset 0 1px 2px rgba(0, 0, 0, 0.2);
+                }
+
+                .h-axis span {
+                    background: var(--card);
+                }
+
+                input[type="number"],
+                input[type="date"] {
+                    background: #1e293b;
+                    border-color: #334155;
+                    color: var(--text);
+                }
+
+                input:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 3px var(--primary-glow);
+                }
+            }
+
+            /* ===== 响应式微调 ===== */
+            @media (max-width: 480px) {
+                .container {
+                    padding: 12px;
+                }
+                .input-card,
+                #unifiedSection {
+                    padding: 18px;
+                    border-radius: var(--radius-md);
+                }
+                h1 {
+                    font-size: 19px;
+                    margin: 4px 0 24px;
+                }
+                .h-track-label {
+                    font-size: 14px;
+                }
+                .h-dot {
+                    width: 12px;
+                    height: 12px;
+                }
+            }
+
+            /* ===== 打印样式 ===== */
+            @media print {
+                body {
+                    background: white;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 100%;
+                }
+                button {
+                    display: none;
+                }
+                .input-card,
+                #unifiedSection {
+                    box-shadow: none;
+                    border: 1px solid #ddd;
+                    break-inside: avoid;
+                }
+            }
+
+            /* ===== 去除 input[type=number] 上下箭头 ===== */
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            input[type="number"] {
+                -moz-appearance: textfield;
+            }
+
+            /* ===== date input 图标颜色 ===== */
+            input[type="date"]::-webkit-calendar-picker-indicator {
+                filter: invert(0.5);
+                cursor: pointer;
+            }
+            @media (prefers-color-scheme: dark) {
+                input[type="date"]::-webkit-calendar-picker-indicator {
+                    filter: invert(0.75);
+                }
+            }
+        
+            /* ===== 详细事件时间线 ===== */
+            .tl-container {
+                margin-top: 20px;
+                padding-top: 16px;
+                border-top: 1px solid var(--border);
+            }
+
+            .tl-title {
+                font-size: 14px;
+                font-weight: 700;
+                margin-bottom: 16px;
+                color: var(--text-secondary);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                letter-spacing: 0.02em;
+            }
+
+            .tl-list {
+                position: relative;
+                padding-left: 0;
+            }
+
+            .tl-list::before {
+                content: '';
+                position: absolute;
+                left: 15px;
+                top: 8px;
+                bottom: 8px;
+                width: 2px;
+                background: var(--border);
+                border-radius: 1px;
+            }
+
+            .tl-item {
+                position: relative;
+                padding: 0 0 18px 44px;
+                list-style: none;
+            }
+
+            .tl-item:last-child {
+                padding-bottom: 0;
+            }
+
+            .tl-dot {
+                position: absolute;
+                left: 7px;
+                top: 6px;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                z-index: 2;
+                border: 3px solid var(--card);
+                box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+
+            .tl-dot.stat {
+                background: var(--stat);
+            }
+
+            .tl-dot.welf {
+                background: var(--welf);
+            }
+
+            .tl-item.issued .tl-dot {
+                opacity: 0.5;
+            }
+
+            .tl-card {
+                background: var(--card);
+                border: 1px solid var(--card-border);
+                border-radius: var(--radius-sm);
+                padding: 12px 14px;
+                box-shadow: var(--shadow-sm);
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+            }
+
+            .tl-item:not(.issued) .tl-card {
+                border-color: rgba(99, 102, 241, 0.08);
+                box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.04), var(--shadow-sm);
+            }
+
+            .tl-card:hover {
+                transform: translateX(3px);
+                box-shadow: var(--shadow-md);
+            }
+
+            .tl-card-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .tl-date {
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--text);
+                letter-spacing: -0.01em;
+            }
+
+            .tl-weekday {
+                font-size: 12px;
+                color: var(--subtext);
+                font-weight: 500;
+            }
+
+            .tl-amount {
+                font-size: 14px;
+                font-weight: 700;
+            }
+
+            .tl-amount.stat {
+                color: var(--stat);
+            }
+
+            .tl-amount.welf {
+                color: var(--welf);
+            }
+
+            .tl-issued-badge {
+                margin-left: auto;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 3px 10px;
+                border-radius: 20px;
+                white-space: nowrap;
+                letter-spacing: 0.02em;
+            }
+
+            .tl-issued-badge.yes {
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.1);
+                border: 1px solid rgba(16, 185, 129, 0.2);
+            }
+
+            .tl-issued-badge.no {
+                color: var(--subtext);
+                background: rgba(148, 163, 184, 0.08);
+                border: 1px solid rgba(148, 163, 184, 0.15);
+            }
+
+            .tl-item.issued .tl-card {
+                opacity: 0.5;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .tl-dot {
+                    box-shadow: 0 0 0 1px rgba(255,255,255,0.03);
+                }
+                .tl-item:not(.issued) .tl-card {
+                    border-color: rgba(99, 102, 241, 0.15);
+                    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.08), var(--shadow-sm);
+                }
+                .tl-issued-badge.yes {
+                    background: rgba(16, 185, 129, 0.15);
+                }
+                .tl-issued-badge.no {
+                    background: rgba(148, 163, 184, 0.12);
+                }
+            }
+
+            @media (max-width: 480px) {
+                .tl-card {
+                    padding: 10px 12px;
+                }
+                .tl-date {
+                    font-size: 14px;
+                }
+                .tl-item {
+                    padding: 0 0 16px 38px;
+                }
+                .tl-dot {
+                    width: 16px;
+                    height: 16px;
+                    left: 4px;
+                }
+                .tl-list::before {
+                    left: 11px;
+                }
+                .tl-amount {
+                    font-size: 13px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>📅 年假发放时间计算器</h1>
+
+            <div class="input-card">
+                <div class="form-group">
+                    <label
+                        >起始日期 <span class="hint">(年假周期开始日)</span></label
+                    >
+                    <input type="date" id="startDate" />
+                </div>
+                <div class="form-group">
+                    <label
+                        >法定年假天数 (n)
+                        <span class="hint">(分10次发，每次0.5天)</span></label
+                    >
+                    <input
+                        type="number"
+                        id="statDays"
+                        placeholder="例如：5"
+                        min="0"
+                        step="0.5"
+                        inputmode="decimal"
+                    />
+                </div>
+                <div class="form-group">
+                    <label
+                        >福利年假天数 (m)
+                        <span class="hint">(分m次发，每次1天)</span></label
+                    >
+                    <input
+                        type="number"
+                        id="welfDays"
+                        placeholder="例如：8"
+                        min="0"
+                        step="1"
+                        inputmode="numeric"
+                    />
+                </div>
+                <div class="btn-group">
+                    <button onclick="calculate()">生成发放时间表</button>
+                </div>
+            </div>
+
+            <div id="results" class="result-section">
+                <div id="unifiedSection">
+                    <div class="section-title">📅 年假发放时间线</div>
+                    <div class="h-timeline" id="hTimeline">
+                        <!-- 今日标记 -->
+                        <div
+                            class="h-today"
+                            id="todayMarker"
+                            style="display: none"
+                        >
+                            <span class="h-today-arrow">⬇</span>
+                            <span class="h-today-text">今日</span>
+                            <span class="h-today-line"></span>
+                        </div>
+                        <!-- 法定年假条 -->
+                        <div class="h-track" id="statTrack">
+                            <div class="h-track-header">
+                                <span class="tag tag-stat">法定</span>
+                                <span class="h-track-label" id="statLabel"
+                                    >0 天</span
+                                >
+                                <span
+                                    class="h-issued-badge hidden"
+                                    id="statBadge"
+                                    >✓ 已发放</span
+                                >
+                            </div>
+                            <div class="h-bar">
+                                <div
+                                    class="h-fill stat"
+                                    id="statFill"
+                                    style="width: 0%"
+                                ></div>
+                                <div class="h-dots" id="statDots"></div>
+                            </div>
+                        </div>
+                        <!-- 福利年假条 -->
+                        <div class="h-track" id="welfTrack">
+                            <div class="h-track-header">
+                                <span class="tag tag-welf">福利</span>
+                                <span class="h-track-label welf" id="welfLabel"
+                                    >0 天</span
+                                >
+                                <span
+                                    class="h-issued-badge hidden"
+                                    id="welfBadge"
+                                    >✓ 已发放</span
+                                >
+                            </div>
+                            <div class="h-bar">
+                                <div
+                                    class="h-fill welf"
+                                    id="welfFill"
+                                    style="width: 0%"
+                                ></div>
+                                <div class="h-dots" id="welfDots"></div>
+                            </div>
+                        </div>
+                        <!-- 日期轴 -->
+                        <div class="h-axis" id="hAxis"></div>
+                    </div>
+                    <div id="eventTimeline"></div>
+                </div>
+
+                <div id="summaryBox" class="summary"></div>
+            </div>
+        </div>
+
+        <script>
+            // 默认设置为今-天
+            document.getElementById("startDate").valueAsDate = new Date(
+                "2026-01-01",
+            );
+
+            function calculate() {
+                const startVal = document.getElementById("startDate").value;
+                const n =
+                    parseFloat(document.getElementById("statDays").value) || 5;
+                const m =
+                    parseInt(document.getElementById("welfDays").value) || 8;
+
+                if (!startVal) {
+                    alert("请选择起始日期");
+                    return;
+                }
+                if (n <= 0 && m <= 0) {
+                    alert("请至少填写一种年假天数");
+                    return;
+                }
+
+                const startDate = new Date(startVal + "T00:00:00");
+                // 计算周期结束日（一年后减一天）
+                const endDate = new Date(startDate);
+                endDate.setFullYear(endDate.getFullYear() + 1);
+                endDate.setDate(endDate.getDate() - 1);
+
+                // 计算该周期总天数
+                const totalDays =
+                    Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) +
+                    1;
+                const weekDays = [
+                    "周日",
+                    "周一",
+                    "周二",
+                    "周三",
+                    "周四",
+                    "周五",
+                    "周六",
+                ];
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                // === 收集所有发放项 ===
+                const allItems = [];
+
+                // 法定年假
+                if (n > 0) {
+                    const statTimes = 10;
+                    const periodLen = totalDays / statTimes;
+                    const actualTimes = Math.min(
+                        statTimes,
+                        Math.floor(n / 0.5),
+                    );
+                    const remainder = n - actualTimes * 0.5;
+
+                    for (let i = 1; i <= actualTimes; i++) {
+                        const dayOffset = Math.ceil(i * periodLen) - 1;
+                        const d = new Date(startDate);
+                        d.setDate(d.getDate() + dayOffset);
+                        allItems.push({
+                            date: d,
+                            amount: 0.5,
+                            label: "+0.5天",
+                            type: "stat",
+                        });
+                    }
+                    if (remainder > 0.01) {
+                        const d = new Date(endDate);
+                        allItems.push({
+                            date: d,
+                            amount: remainder,
+                            label: `+${remainder}天(尾数)`,
+                            type: "stat",
+                        });
+                    }
+                }
+
+                // 福利年假
+                if (m > 0) {
+                    const welfPeriodLen = totalDays / m;
+                    for (let i = 1; i <= m; i++) {
+                        const dayOffset = Math.ceil(i * welfPeriodLen) - 1;
+                        const d = new Date(startDate);
+                        d.setDate(d.getDate() + dayOffset);
+                        allItems.push({
+                            date: d,
+                            amount: 1,
+                            label: "+1天",
+                            type: "welf",
+                        });
+                    }
+                }
+
+                // 按日期排序
+                allItems.sort((a, b) => a.date - b.date);
+
+                // === 渲染水平时间线 ===
+                let statIssued = 0;
+                let welfIssued = 0;
+
+                // 计算各项日期在整个周期中的百分比位置
+                function getPct(d) {
+                    const days = Math.round(
+                        (d - startDate) / (1000 * 60 * 60 * 24),
+                    );
+                    return Math.max(
+                        0,
+                        Math.min(100, (days / (totalDays - 1)) * 100),
+                    );
+                }
+
+                const todayPct = getPct(today);
+
+                // --- 法定年假 ---
+                if (n > 0) {
+                    const statItems = allItems.filter((i) => i.type === "stat");
+                    const statIssuedAmt = statItems
+                        .filter((i) => i.date <= today)
+                        .reduce((sum, i) => sum + i.amount, 0);
+                    statIssued = statIssuedAmt;
+
+                    const statDotsHtml = statItems
+                        .map((item) => {
+                            const pct = getPct(item.date);
+                            const cls =
+                                item.date <= today
+                                    ? "h-dot issued"
+                                    : "h-dot pending";
+                            return `<div class="${cls}" style="left:${pct}%"></div>`;
+                        })
+                        .join("");
+
+                    document.getElementById("statFill").style.width =
+                        todayPct + "%";
+                    document.getElementById("statDots").innerHTML =
+                        statDotsHtml;
+                    document.getElementById("statLabel").textContent =
+                        `${statIssuedAmt} / ${n} 天`;
+                    if (statIssuedAmt > 0) {
+                        document
+                            .getElementById("statBadge")
+                            .classList.remove("hidden");
+                    }
+                    document.getElementById("statTrack").style.display = "";
+                } else {
+                    document.getElementById("statTrack").style.display = "none";
+                }
+
+                // --- 福利年假 ---
+                if (m > 0) {
+                    const welfItems = allItems.filter((i) => i.type === "welf");
+                    const welfIssuedAmt = welfItems
+                        .filter((i) => i.date <= today)
+                        .reduce((sum, i) => sum + i.amount, 0);
+                    welfIssued = welfIssuedAmt;
+
+                    const welfDotsHtml = welfItems
+                        .map((item) => {
+                            const pct = getPct(item.date);
+                            const cls =
+                                item.date <= today
+                                    ? "h-dot issued"
+                                    : "h-dot pending";
+                            return `<div class="${cls}" style="left:${pct}%"></div>`;
+                        })
+                        .join("");
+
+                    document.getElementById("welfFill").style.width =
+                        todayPct + "%";
+                    document.getElementById("welfDots").innerHTML =
+                        welfDotsHtml;
+                    document.getElementById("welfLabel").textContent =
+                        `${welfIssuedAmt} / ${m} 天`;
+                    if (welfIssuedAmt > 0) {
+                        document
+                            .getElementById("welfBadge")
+                            .classList.remove("hidden");
+                    }
+                    document.getElementById("welfTrack").style.display = "";
+                } else {
+                    document.getElementById("welfTrack").style.display = "none";
+                }
+
+                // --- 今日标记 ---
+                const todayMarker = document.getElementById("todayMarker");
+                todayMarker.style.left = todayPct + "%";
+                todayMarker.style.display = "flex";
+
+                // --- 日期轴 ---
+                document.getElementById("hAxis").innerHTML =
+                    `<span>${fmt(startDate)}</span><span>${fmt(endDate)}</span>`;
+                // === 渲染详细事件时间线 ===
+                if (allItems.length > 0) {
+                    const tlHtml = allItems
+                        .map((item) => {
+                            const isIssued = item.date <= today;
+                            const weekday = weekDays[item.date.getDay()];
+                            const typeClass =
+                                item.type === "stat" ? "stat" : "welf";
+                            const typeTag =
+                                item.type === "stat" ? "法定" : "福利";
+                            const issuedClass = isIssued ? "yes" : "no";
+                            const issuedText = isIssued
+                                ? "✓ 已发放"
+                                : "待发放";
+                            return `<div class="tl-item${isIssued ? " issued" : ""}">
+                            <div class="tl-dot ${typeClass}"></div>
+                            <div class="tl-card">
+                                <div class="tl-card-row">
+                                    <span class="tl-date">${fmt(item.date)}</span>
+                                    <span class="tl-weekday">${weekday}</span>
+                                    <span class="tag tag-${typeClass}">${typeTag}</span>
+                                    <span class="tl-amount ${typeClass}">${item.label}</span>
+                                    <span class="tl-issued-badge ${issuedClass}">${issuedText}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                        })
+                        .join("");
+
+                    document.getElementById("eventTimeline").innerHTML =
+                        `<div class="tl-container">
+                            <div class="tl-title">📋 发放明细</div>
+                            <div class="tl-list">${tlHtml}</div>
+                        </div>`;
+                }
+                // === 汇总信息 ===
+                const summaryParts = [];
+                if (n > 0) {
+                    summaryParts.push(
+                        `📌 法定年假 ${n} 天：已发放 ${statIssued} 天`,
+                    );
+                }
+                if (m > 0) {
+                    summaryParts.push(
+                        `🎁 福利年假 ${m} 天：已发放 ${welfIssued} 天`,
+                    );
+                }
+                summaryParts.push(
+                    `📆 年假周期：${fmt(startDate)} ~ ${fmt(endDate)}（共${totalDays}天）`,
+                );
+                document.getElementById("summaryBox").innerHTML =
+                    summaryParts.join("<br>");
+
+                document.getElementById("results").classList.add("active");
+                document
+                    .getElementById("results")
+                    .scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
+            function fmt(d) {
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, "0");
+                const day = String(d.getDate()).padStart(2, "0");
+                return `${y}-${m}-${day}`;
+            }
+        </script>
+    </body>
+</html>
